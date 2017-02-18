@@ -5,6 +5,8 @@
 #include <sys/wait.h>
 #include <errno.h>
 
+#include <tokens.h>
+
 #define PROMPT "-> "
 
 int main(int argc, char **argv) {
@@ -15,12 +17,13 @@ int main(int argc, char **argv) {
     n_read = getline(&line, &line_len, stdin);
     while (n_read >= 0) {
         line[n_read-1] = '\0';
+        char **tokens = all_tokens(line, ' ');
         pid_t child_pid = fork();
         if (child_pid < 0) {
             perror("fork");
             errno = 0;
         } else if (child_pid == 0) {
-            if (execv("/bin/echo", (char*[]){"/bin/echo", line, NULL}) != 0) {
+            if (execv(tokens[0], tokens) != 0) {
                 perror("execv");
                 exit(1);
             }
@@ -31,6 +34,11 @@ int main(int argc, char **argv) {
             while (wpid != child_pid) {
                 wpid = wait(&status);
             }
+            char **iter;
+            for (iter = tokens; *iter != NULL; iter++) {
+                free(*iter);
+            }
+            free(tokens);
         }
         free(line);
         line = NULL;
