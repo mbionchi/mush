@@ -31,8 +31,8 @@ char **all_tokens(char *str, char delim) {
     char **tokens = malloc(tokens_n*sizeof(char*));
     char *token;
     int i = 0;
+    ssize_t total_offset = 0;
     ssize_t last_offset = next_token(str, &token, delim);
-    ssize_t total_offset = last_offset;
     while (last_offset >= 0) {
         if (i >= tokens_n) {
             tokens_n += alloc_nmemb;
@@ -40,8 +40,8 @@ char **all_tokens(char *str, char delim) {
         }
         tokens[i] = token;
         i++;
-        last_offset = next_token(str+total_offset, &token, delim);
         total_offset += last_offset;
+        last_offset = next_token(str+total_offset, &token, delim);
     }
     if (i >= tokens_n ) {
         tokens = realloc(tokens, (tokens_n+1)*sizeof(char*));
