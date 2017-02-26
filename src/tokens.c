@@ -6,16 +6,16 @@
 
 static const size_t alloc_nmemb = 18;
 
-ssize_t next_token(char *str, char **tok, char delim) {
+ssize_t next_token(const char *str, char **tok, char delim) {
     ssize_t offset = 0;
-    if (str[offset] == '\0') {
+    if (str[offset] == '\0' || str[offset] == '\n') {
         offset = -1;
     } else {
         ssize_t length = 0;
         while (str[offset] == delim) {
             offset++;
         }
-        while (str[offset] != delim && str[offset] != '\0') {
+        while (str[offset] != delim && str[offset] != '\0' && str[offset] != '\n' ) {
             offset++;
             length++;
         }
@@ -26,7 +26,7 @@ ssize_t next_token(char *str, char **tok, char delim) {
     return offset;
 }
 
-char **all_tokens(char *str, char delim) {
+char **all_tokens(const char *str, char delim) {
     size_t tokens_n = alloc_nmemb;
     char **tokens = malloc(tokens_n*sizeof(char*));
     char *token;
@@ -43,7 +43,7 @@ char **all_tokens(char *str, char delim) {
         total_offset += last_offset;
         last_offset = next_token(str+total_offset, &token, delim);
     }
-    if (i >= tokens_n ) {
+    if (i >= tokens_n) {
         tokens = realloc(tokens, (tokens_n+1)*sizeof(char*));
     }
     tokens[i] = NULL;
